@@ -36,3 +36,15 @@ given (shift) {
 1;
 
 __END__
+
+=head1 DESCRIPTION
+
+This package provides a wrapper around certain common interactions with Salesforce,
+with the aim of being sufficiently powerful and flexible for the enterprise, and to
+make 10k+ line ant XML packages unneccesary.
+
+=head1 SHARED FUNCTIONALITY
+
+All operations use L<App::SFDC::Role::Logging> and L<App::SFDC::Role::Credentials>
+to provide shared functionality. Look in those modules to see specifics of the
+options they provide.
