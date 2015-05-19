@@ -1,4 +1,5 @@
 package App::SFDC::Role::Logging;
+# ABSTRACT: Handle logging customisation on the command line
 
 use strict;
 use warnings;

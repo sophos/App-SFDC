@@ -1,4 +1,5 @@
 package App::SFDC::Retrieve;
+# ABSTRACT: Retrive files from SFDC
 
 use strict;
 use warnings;
@@ -41,9 +42,9 @@ option 'manifest',
 	default => sub {
 		my $self = shift;
 		[
-			"$Bin/../manifest/base.xml",
+			"$Bin/../manifests/base.xml",
 			$self->all
-				? "$Bin/../manifest/all.xml"
+				? "$Bin/../manifests/all.xml"
 				: (),
 		]
 	},
@@ -86,6 +87,8 @@ option 'plugins',
 		LOGDIE "The plugins file $_[0] doesn't exist!"
 			unless -e $_[0];
 	};
+
+
 
 sub _loadPlugins {
 	my $self = shift;

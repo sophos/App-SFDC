@@ -1,4 +1,5 @@
 package App::SFDC::Deploy;
+# ABSTRACT: Deploy files to SFDC
 
 use strict;
 use warnings;
@@ -16,10 +17,12 @@ with 'App::SFDC::Role::Logging',
 	'App::SFDC::Role::Credentials';
 
 option 'all',
+	doc => 'Deploy all files in the src/ directory.',
 	is => 'ro',
 	short => 'a';
 
 option 'files',
+	doc => 'Files to deploy. Defaults to a list read from STDIN, unless all is set.',
 	format => 's',
 	is => 'ro',
 	lazy => 1,
@@ -55,12 +58,11 @@ option 'tests',
 	is => 'ro',
 	short => 't';
 
-
 sub execute {
 	return WWW::SFDC::Metadata->instance()->deployMetadata(
 	    WWW::SFDC::Zip::makezip(
 			'src',
-			@fileList,
+			@{$self->files},
 			($self->deletions
 				? ('destructiveChanges.xml', 'destructiveChangesPre.xml', 'destructiveChangesPost.xml')
 				: ()
@@ -69,7 +71,7 @@ sub execute {
 	    ), {
 			singlePackage => 'true', # with this set, deployments starts after 1min; without, up to 75
 			rollbackOnError => 'true',
-			($self->tests ? (testLevel => 'testLevel') : ()),
+			($self->tests ? (testLevel => 'RunLocalTests') : ()),
 			($self->validate ? (checkOnly => 'true') : ()),
 	    }
    );

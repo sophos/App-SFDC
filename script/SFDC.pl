@@ -1,5 +1,6 @@
 #!perl
 package SFDC;
+# ABSTRACT: Command tool for interacting with Salesforce.com
 
 use strict;
 use warnings;

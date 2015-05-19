@@ -1,4 +1,5 @@
 package App::SFDC::Role::Credentials;
+# ABSTRACT: Handle credential command-line input
 
 use strict;
 use warnings;
