@@ -25,7 +25,7 @@ given (shift) {
     }
     when ('deploy') {
         require App::SFDC::Deploy;
-        App::SFDC::deploy->new_with_options
+        App::SFDC::Deploy->new_with_options
             ->execute();
     }
     default {

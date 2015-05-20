@@ -4,6 +4,7 @@ package App::SFDC::Deploy;
 use strict;
 use warnings;
 
+use Data::Dumper;
 use File::Find 'find';
 use Log::Log4perl ':easy';
 
@@ -53,7 +54,7 @@ option 'files',
                     push @filelist, $File::Find::name
                         unless (-d or /(package\.xml|destructiveChanges(Pre|Post)?\.xml|\.bak)/)
                 },
-                'src';
+                'src/';
         } else {
             INFO 'Reading files from STDIN';
             @filelist = <>;
@@ -74,7 +75,7 @@ following, if they're present:
 =cut
 
 option 'deletions',
-    doc => 'Whether or not to deploy deletions.'
+    doc => 'Whether or not to deploy deletions.',
     is => 'ro',
     default => 1;
 
@@ -107,11 +108,24 @@ Perform a validation to Salesforce.com.
 
 =cut
 
+has '_manifest',
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        return WWW::SFDC::Manifest
+            ->new(apiversion => $self->apiversion)
+            ->addList(@{$self->files})
+            ->writeToFile('src/package.xml');
+    };
+
+
 sub execute {
+    my $self = shift;
     return WWW::SFDC::Metadata->instance()->deployMetadata(
         WWW::SFDC::Zip::makezip(
-            'src',
-            @{$self->files},
+            'src/',
+            $self->_manifest->getFileList,
             ($self->deletions
                 ? ('destructiveChanges.xml', 'destructiveChangesPre.xml', 'destructiveChangesPost.xml')
                 : ()
