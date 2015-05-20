@@ -42,7 +42,7 @@ option 'all',
     short => 'a',
     is => 'ro';
 
-=option --files -f
+=option --file -f
 
 Retrieve only specified files. You can use various calling style, for instance:
 
@@ -52,8 +52,8 @@ Setting this will ignore any manifests or folders otherwise specified.
 
 =cut
 
-option 'files',
-    doc => 'Retrieve only specified files'
+option 'file',
+    doc => 'Retrieve only specified files',
     is => 'ro',
     format => 's',
     repeatable => 1,
@@ -99,7 +99,7 @@ has '_manifest',
         my $self = shift;
         my $manifest = WWW::SFDC::Manifest->new();
 
-        return $manifest->addList(@{$self->files})
+        return $manifest->addList(@{$self->file})
             if $self->file;
 
         $manifest->add(

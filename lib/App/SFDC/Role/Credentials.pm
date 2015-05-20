@@ -39,7 +39,6 @@ option 'credfile',
 	lazy => 1,
 	default => File::HomeDir->my_home."/.salesforce.properties",
 	isa => sub {
-		INFO "hi!";
 		LOGDIE "The credentials file ".$_[0]." doesn't exist!"
 			unless -e $_[0];
 	};
@@ -67,8 +66,11 @@ sub _readOptionsFromFile {
     	.$self->credfile
     	unless $environments{$environment};
 
-    $self->$_ = $environments{$environment}->{$_}
-    	for qw(username password url apiversion);
+    for (qw'username password url apiversion') {
+    	$self->{$_} = $environments{$environment}->{$_}
+    		if ($environments{$environment}->{$_})
+	}
+
 }
 
 sub BUILD {
