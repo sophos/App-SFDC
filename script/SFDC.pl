@@ -6,10 +6,19 @@ use strict;
 use warnings;
 use 5.10.0;
 use experimental qw(smartmatch);
+use App::SFDC;
 
 
 sub usage {"
     SFDC: Tools for interacting with Salesforce.com
+
+    Valid commands:
+
+        retrieve - Retrieve metadata from SFDC
+
+        deploy   - Deploy metadata to SFDC
+
+    For more detail, run: SFDC <command> --usage
 "}
 
 # The use of shift HAS SIDE EFFECTS. Note that child modules are invoked using
@@ -18,15 +27,11 @@ sub usage {"
 # GetOptions, which is why we shift instead of using $_[0]
 
 given (shift) {
-    when ('retrieve') {
-        require App::SFDC::Retrieve;
-        App::SFDC::Retrieve->new_with_options
-            ->execute();
+    when (/retrieve/i) {
+        App::SFDC::Retrieve->new_with_options->execute();
     }
-    when ('deploy') {
-        require App::SFDC::Deploy;
-        App::SFDC::Deploy->new_with_options
-            ->execute();
+    when (/deploy/i) {
+        App::SFDC::Deploy->new_with_options->execute();
     }
     default {
         print usage;

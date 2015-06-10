@@ -8,9 +8,7 @@ use Data::Dumper;
 use File::Find 'find';
 use Log::Log4perl ':easy';
 
-use WWW::SFDC::Manifest;
-use WWW::SFDC::Metadata;
-use WWW::SFDC::Zip;
+use WWW::SFDC qw'Manifest Metadata Zip';
 
 use Moo;
 use MooX::Options;

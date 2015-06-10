@@ -34,6 +34,7 @@ option 'apiversion',
 	default => 33;
 
 option 'credfile',
+	doc => 'The file from which to read credentials.',
 	is => 'ro',
 	format => 's',
 	lazy => 1,

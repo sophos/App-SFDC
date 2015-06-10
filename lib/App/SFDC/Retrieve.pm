@@ -5,13 +5,13 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use File::HomeDir;
 use File::Path 'rmtree';
+use File::Share 'dist_file';
 use FindBin '$Bin';
 use Log::Log4perl ':easy';
 
-use WWW::SFDC::Manifest;
-use WWW::SFDC::Metadata;
-use WWW::SFDC::Zip;
+use WWW::SFDC qw'Manifest Metadata Zip';
 
 use Moo;
 use MooX::Options;
@@ -68,6 +68,13 @@ all.xml included.
 
 =cut
 
+sub _getFile {
+    my $file = shift;
+    -e && return $_ for "lib/$file", File::HomeDir->my_home."/.app-sfdc/$file";
+    return PerlApp::extract_bound_file($file) if defined $PerlApp::VERSION;
+    return dist_file("App-SFDC", $file);
+}
+
 option 'manifest',
     doc => 'Use specified manifest(s)',
     is => 'ro',
@@ -77,9 +84,9 @@ option 'manifest',
     default => sub {
         my $self = shift;
         [
-            "$Bin/../manifests/base.xml",
+            _getFile("manifests/base.xml"),
             $self->all
-                ? "$Bin/../manifests/all.xml"
+                ? _getFile("manifests/all.xml")
                 : (),
         ]
     },
@@ -145,7 +152,9 @@ distribution.
 option 'plugins',
     is => 'ro',
     format => 's',
-    default => "$Bin/../plugins/retrieve.plugins.pm",
+    default => sub {
+        return _getFile("plugins/retrieve.plugins.pm");
+    },
     isa => sub {
         LOGDIE "The plugins file $_[0] doesn't exist!"
             unless -e $_[0];
@@ -206,5 +215,15 @@ To use this within your own script, use
 or
 
     App::SFDC::Retrieve->new($MY_OPTIONS)->execute();
+
+
+=head1 CONFIGURATION
+
+The retrieve application is can be configured to suit your organisation's needs
+by specifying custom manifest files, a list of folders to track, and retrieve-
+time metadata changes. These are configured using C<manifests/base.xml>,
+C<manifests/all.xml>, and C<plugins/retrieve.plugins.pm>. To find these paths,
+App::SFDC searches C<./lib/> and C<~/.app-sfdc/>, or falls back to some
+sensible defaults. For more information, see L</--plugins> and L</--manifest>.
 
 =cut

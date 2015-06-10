@@ -28,6 +28,7 @@ option 'debug',
 
 option 'trace',
     is => 'ro',
+    hidden => 1,
     trigger => sub {
         $_[0]->logger->level($TRACE)
     };
@@ -36,7 +37,8 @@ option 'log',
     format => 's',
     is => 'ro',
     trigger => sub {
-       $_[0]->logger->add_appender(
+        require Log::Log4perl::Appender::File;
+        $_[0]->logger->add_appender(
             Log::Log4perl::Appender->new(
                 "Log::Log4perl::Appender::File",
                 name      => "$_[1]logger",
