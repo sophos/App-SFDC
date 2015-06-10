@@ -7,7 +7,7 @@ use 5.12.0;
 sub import {
   my $class = shift;
 
-  require "App/SFDC/$_.pm"
+  require "App/SFDC/$_.pm" ## no critic
     for @_ || qw'Retrieve Deploy'
 
 }

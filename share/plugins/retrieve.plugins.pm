@@ -7,6 +7,8 @@ use experimental qw(smartmatch);
 
 sub _compressProfile {
 
+  ## no critic
+
   return join "", grep {
     s/\r//g;                  # remove all CR characters
     s/\t/    /g;              # replace all tabs with 4 spaces
@@ -18,6 +20,7 @@ sub _compressProfile {
     /\S/;
   } split /^/, shift;
 
+  ## use critic
 }
 
 sub _retrieveTimeMetadataChanges {
