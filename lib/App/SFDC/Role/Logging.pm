@@ -1,5 +1,4 @@
 package App::SFDC::Role::Logging;
-# ABSTRACT: Handle logging customisation on the command line
 
 use strict;
 use warnings;
@@ -28,7 +27,6 @@ option 'debug',
 
 option 'trace',
     is => 'ro',
-    hidden => 1,
     trigger => sub {
         $_[0]->logger->level($TRACE)
     };
@@ -37,8 +35,7 @@ option 'log',
     format => 's',
     is => 'ro',
     trigger => sub {
-        require Log::Log4perl::Appender::File;
-        $_[0]->logger->add_appender(
+       $_[0]->logger->add_appender(
             Log::Log4perl::Appender->new(
                 "Log::Log4perl::Appender::File",
                 name      => "$_[1]logger",

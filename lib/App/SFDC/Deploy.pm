@@ -8,150 +8,107 @@ use Data::Dumper;
 use File::Find 'find';
 use Log::Log4perl ':easy';
 
-use WWW::SFDC qw'Manifest Metadata Zip';
+use WWW::SFDC::Manifest;
+use WWW::SFDC::Zip;
 
 use Moo;
 use MooX::Options;
 with 'App::SFDC::Role::Logging',
-    'App::SFDC::Role::Credentials';
-
-=option --all -a
-
-Deploy all files in the src/ directory.
-
-=cut
+	'App::SFDC::Role::Credentials';
 
 option 'all',
-    doc => 'Deploy all files in the src/ directory.',
-    is => 'ro',
-    short => 'a';
-
-=option --files -f
-
-Files to deploy. Defaults to a list read from STDIN, unless all is set.
-
-You can use various calling style, for instance:
-
-    -f "src/profiles/blah.profile" --file "src/classes/blah.cls,src/classes/foo.cls"
-
-=cut
-
-option 'files',
-    doc => 'Files to deploy. Defaults to a list read from STDIN, unless all is set.',
-    format => 's',
-    is => 'ro',
-    lazy => 1,
-    repeatable => 1,
-    short => 'f',
-    default => sub {
-        my $self = shift;
-        my @filelist;
-        if ($self->all) {
-            find
-                sub {
-                    push @filelist, $File::Find::name
-                        unless (-d or /(package\.xml|destructiveChanges(Pre|Post)?\.xml|\.bak)/)
-                },
-                'src/';
-        } else {
-            INFO 'Reading files from STDIN';
-            @filelist = <>;
-        }
-        DEBUG "File list for deployment: ". Dumper \@filelist;
-        return \@filelist;
-    };
-
-=option --deletions --no-deletions
-
-Whether or not to deploy deletions. By default, Deploy includes any of the
-following, if they're present:
-
-    destructiveChanges.xml
-    destructiveChangesPre.xml
-    destructiveChangesPost.xml
-
-=cut
+	is => 'ro',
+	short => 'a';
 
 option 'deletions',
-    doc => 'Whether or not to deploy deletions.',
-    is => 'ro',
-    default => 1;
+	is => 'ro',
+	default => 1,
+	negativable => 1;
 
-=option --validate -v
+option 'files',
+	format => 's',
+	is => 'ro',
+	lazy => 1,
+	repeatable => 1,
+	short => 'f',
+	default => sub {
+		my $self = shift;
+		my @filelist;
+		if ($self->all) {
+		  find(
+				sub {
+					push @filelist, $File::Find::name
+						unless (-d or /(package\.xml|destructiveChanges(Pre|Post)?\.xml|\.bak)/)
+				},
+				'src'
+			);
+		} else {
+			INFO 'Reading files from STDIN';
+			@filelist = <>;
+		}
+		DEBUG "File list for deployment: ". Dumper(\@filelist);
+		return \@filelist;
+	};
 
-If set, set 'isCheckOnly' to true, i.e. perform a validation deployment.
+option 'rollback',
+	is => 'ro',
+	default => 0,
+	negativable => 1;
 
-=cut
+option 'runtests',
+	short => 't',
+	is => 'ro',
+	default => 0;
 
 option 'validate',
-    doc => 'Perform a validation deployment',
-    is => 'ro',
-    short => 'v';
+	is => 'ro',
+	short => 'v',
+	default => 0;
 
-=option --tests -t
+has 'zipFile',
+	lazy => 1,
+	is => 'rw',
+	default => sub {
+		my $self = shift;
 
-If set, set 'testLevel' to 'RunLocalTests', i.e. run all tests in your own
-namespace. This has no effect on Production, and doesn't work before API v34.0
+	print Dumper @{$self->files};
+		WWW::SFDC::Zip::makezip(
+			'src/',
+			@{$self->files},
+			'package.xml',
+			(
+				$self->deletions
+				  ? ('destructiveChangesPre.xml', 'destructiveChangesPost.xml')
+				  : ()
+			)
+		);
+	};
 
-=cut
-
-option 'tests',
-    doc => 'Run local tests before deployment',
-    is => 'ro',
-    short => 't';
-
-=method execute()
-
-Perform a validation to Salesforce.com.
-
-=cut
-
-has '_manifest',
-    is => 'ro',
-    lazy => 1,
-    default => sub {
-        my $self = shift;
-        return WWW::SFDC::Manifest
-            ->new(apiversion => $self->apiversion)
-            ->addList(@{$self->files})
-            ->writeToFile('src/package.xml');
-    };
-
+has 'manifest',
+	is => 'ro',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		WWW::SFDC::Manifest->new(
+			constants => $self->_session->Constants,
+			apiVersion => $self->_session->apiVersion,
+		)->addList(@{$self->files});
+	};
 
 sub execute {
-    my $self = shift;
-    return WWW::SFDC::Metadata->instance()->deployMetadata(
-        WWW::SFDC::Zip::makezip(
-            'src/',
-            $self->_manifest->getFileList,
-            ($self->deletions
-                ? ('destructiveChanges.xml', 'destructiveChangesPre.xml', 'destructiveChangesPost.xml')
-                : ()
-            ),
-            'package.xml'
-        ), {
-            singlePackage => 'true', # with this set, deployments starts after 1min; without, up to 75
-            rollbackOnError => 'true',
-            ($self->tests ? (testLevel => 'RunLocalTests') : ()),
-            ($self->validate ? (checkOnly => 'true') : ()),
-        }
-   );
+	my $self = shift;
+	$self->manifest->writeToFile('src/package.xml');
+	$self->_session->Metadata->deployMetadata(
+		$self->zipFile,
+		{
+			singlePackage => 'true',
+			($self->rollback ? (rollbackonerror => 'true') : ()),
+			($self->validate ? (checkOnly => 'true') : ()),
+			($self->runtests ? (testLevel => 'runLocalTests') : ()),
+		}
+	);
 }
 
 1;
 
 __END__
-
-=head1 OVERVIEW
-
-Deployments to Salesforce.com using the Metadata API. Consumes
-L<App::SFDC::Role::Credentials> and L<App::SFDC::Role::Logging>
-(look in those for extra options to be used).
-
-To use this within your own script, use
-
-    App::SFDC::Deploy->new_with_options->execute();
-
-or
-
-    App::SFDC::Deploy->new($MY_OPTIONS)->execute();

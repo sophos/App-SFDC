@@ -8,7 +8,7 @@ use 5.10.0;
 use Config::Properties;
 use File::HomeDir;
 use Log::Log4perl ':easy';
-use WWW::SFDC::SessionManager;
+use WWW::SFDC;
 
 use Moo::Role;
 use MooX::Options;
@@ -16,12 +16,14 @@ use MooX::Options;
 option 'username',
 	is => 'ro',
 	short => 'u',
-	format => 's';
+	format => 's',
+	default => \&_readOptionsFromFile;
 
 option 'password',
 	is => 'ro',
 	short => 'p',
-	format => 's';
+	format => 's',
+	default => \&_readOptionsFromFile;
 
 option 'url',
 	is => 'ro',
@@ -49,6 +51,19 @@ option 'environment',
 	short => 'e',
 	format => 's';
 
+has '_session',
+	is => 'ro',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		WWW::SFDC->new(
+			username => $self->username,
+			password => $self->password,
+			url => $self->url,
+			apiVersion => $self->apiversion,
+		)
+	};
+
 sub _readOptionsFromFile {
 	my ($self) = @_;
 
@@ -67,30 +82,20 @@ sub _readOptionsFromFile {
     	.$self->credfile
     	unless $environments{$environment};
 
-    for (qw'username password url apiversion') {
-    	$self->{$_} = $environments{$environment}->{$_}
-    		if ($environments{$environment}->{$_})
-	}
-
+    $self->$_ = $environments{$environment}->{$_}
+    	for qw(username password url apiversion);
 }
 
-sub BUILD {
-	my $self = shift;
+# sub BUILD {
+# 	my $self = shift;
 
-	$self->_readOptionsFromFile if $self->environment;
+# 	$self->_readOptionsFromFile if $self->environment;
 
-	LOGDIE 'You must specify a username and password '
-		. 'either on the commandline or in a '
-		. 'credentials file'
-		unless $self->username and $self->password;
-
-	WWW::SFDC::SessionManager->instance(
-		username => $self->username,
-		password => $self->password,
-		url => $self->url,
-		apiVersion => $self->apiversion
-	);
-}
+# 	LOGDIE 'You must specify a username and password '
+# 		. 'either on the commandline or in a '
+# 		. 'credentials file'
+# 		unless $self->username and $self->password;
+# }
 
 1;
 
