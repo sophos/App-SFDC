@@ -75,6 +75,7 @@ option 'files',
         } else {
             INFO 'Reading files from STDIN';
             @filelist = <STDIN>;
+            chomp @filelist;
         }
         DEBUG "File list for deployment: ". Dumper(\@filelist);
         return \@filelist;
