@@ -98,7 +98,7 @@ has '_session',
     default => sub {
         my $self = shift;
 
-        $self->_readOptionsFromFile if $self->credfile
+        $self->_readOptionsFromFile if $self->environment
             and (!$self->username or !$self->password);
 
         WWW::SFDC->new(
