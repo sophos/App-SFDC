@@ -122,7 +122,7 @@ has '_zipFile',
         my $self = shift;
         WWW::SFDC::Zip::makezip(
             'src/',
-            @{$self->files},
+            $self->_manifest->getFileList,
             'package.xml',
             (
                 $self->deletions
