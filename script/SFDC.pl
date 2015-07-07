@@ -5,7 +5,6 @@ package SFDC;
 use strict;
 use warnings;
 use 5.10.0;
-use experimental qw(smartmatch);
 use App::SFDC;
 
 
@@ -26,16 +25,13 @@ sub usage {"
 # expect @ARGV to start with an operation which would be invalid as input to
 # GetOptions, which is why we shift instead of using $_[0]
 
-given (shift) {
-    when (/retrieve/i) {
-        App::SFDC::Retrieve->new_with_options->execute();
-    }
-    when (/deploy/i) {
-        App::SFDC::Deploy->new_with_options->execute();
-    }
-    default {
-        print usage;
-    }
+local $_ = shift;
+if (/retrieve/i) {
+    App::SFDC::Retrieve->new_with_options->execute();
+} elsif (/deploy/i) {
+    App::SFDC::Deploy->new_with_options->execute();
+} else {
+    print usage;
 }
 
 1;
