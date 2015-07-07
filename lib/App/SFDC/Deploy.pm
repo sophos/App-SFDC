@@ -156,7 +156,7 @@ sub execute {
         return;
     }
     $self->_manifest->writeToFile('src/package.xml');
-    $self->_session->Metadata->deployMetadata(
+    print $self->_session->Metadata->deployMetadata(
         $self->_zipFile,
         {
             singlePackage => 'true',
