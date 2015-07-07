@@ -160,9 +160,9 @@ sub execute {
         $self->_zipFile,
         {
             singlePackage => 'true',
-            ($self->rollback ? (rollbackonerror => 'true') : ()),
+            ($self->rollback ? (rollbackOnError => 'true') : ()),
             ($self->validate ? (checkOnly => 'true') : ()),
-            ($self->runtests ? (testLevel => 'runLocalTests') : ()),
+            ($self->runtests ? (testLevel => 'RunLocalTests') : ()),
         }
     );
 }
