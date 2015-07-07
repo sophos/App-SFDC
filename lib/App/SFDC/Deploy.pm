@@ -4,6 +4,8 @@ package App::SFDC::Deploy;
 use strict;
 use warnings;
 
+# VERSION
+
 use Data::Dumper;
 use File::Find 'find';
 use Log::Log4perl ':easy';

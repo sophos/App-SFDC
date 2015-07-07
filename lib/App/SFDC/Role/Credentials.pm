@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use 5.10.0;
 
+# VERSION
+
 use Config::Properties;
 use Data::Dumper;
 use File::HomeDir;

@@ -4,6 +4,8 @@ package App::SFDC::Retrieve;
 use strict;
 use warnings;
 
+# VERSION
+
 use Data::Dumper;
 use File::HomeDir;
 use File::Path 'rmtree';

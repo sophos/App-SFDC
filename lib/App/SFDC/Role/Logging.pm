@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.8.8;
 
+# VERSION
+
 use Log::Log4perl ':easy';
 use Moo::Role;
 use MooX::Options;

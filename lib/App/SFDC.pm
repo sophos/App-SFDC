@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use 5.12.0;
 
+# VERSION
+
 sub import {
   my $class = shift;
 
