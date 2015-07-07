@@ -48,7 +48,7 @@ option 'url',
 option 'apiversion',
     is => 'rw',
     format => 'i',
-    default => 33;
+    default => 34;
 
 =option --credfile
 
