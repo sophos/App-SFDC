@@ -151,6 +151,10 @@ builds a zip file and deploys it to Salesforce.com.
 
 sub execute {
     my $self = shift;
+    unless (scalar @{$self->files}) {
+        INFO "Nothing to deploy; exiting";
+        return;
+    }
     $self->_manifest->writeToFile('src/package.xml');
     $self->_session->Metadata->deployMetadata(
         $self->_zipFile,
