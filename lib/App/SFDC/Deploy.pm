@@ -89,7 +89,7 @@ Whether or not to send the 'rollbackonerror' header. Defaults to true.
 
 option 'rollback',
     is => 'ro',
-    default => 0,
+    default => 1,
     negativable => 1;
 
 =option --runtests -t
