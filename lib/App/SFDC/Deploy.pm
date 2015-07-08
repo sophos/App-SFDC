@@ -142,7 +142,23 @@ has '_manifest',
         WWW::SFDC::Manifest->new(
             constants => $self->_session->Constants,
             apiVersion => $self->_session->apiVersion,
-        )->addList(@{$self->files});
+        )->addList(@{$self->files})->writeToFile('src/package.xml');
+    };
+
+has '_result',
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        my $self = shift;
+        $self->_session->Metadata->deployMetadata(
+            $self->_zipFile,
+            {
+                singlePackage => 'true',
+                ($self->rollback ? (rollbackOnError => 'true') : ()),
+                ($self->validate ? (checkOnly => 'true') : ()),
+                ($self->runtests ? (testLevel => 'RunLocalTests') : ()),
+            }
+        );
     };
 
 =method execute()
@@ -157,16 +173,8 @@ sub execute {
         INFO "Nothing to deploy; exiting";
         return;
     }
-    $self->_manifest->writeToFile('src/package.xml');
-    print $self->_session->Metadata->deployMetadata(
-        $self->_zipFile,
-        {
-            singlePackage => 'true',
-            ($self->rollback ? (rollbackOnError => 'true') : ()),
-            ($self->validate ? (checkOnly => 'true') : ()),
-            ($self->runtests ? (testLevel => 'RunLocalTests') : ()),
-        }
-    );
+    print $self->_result;
+    return $self->_result->success;
 }
 
 1;

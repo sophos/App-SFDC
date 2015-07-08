@@ -196,7 +196,9 @@ sub execute {
             $self->_manifest->manifest()
         ),
         \&_retrieveTimeMetadataChanges
-   );
+    );
+
+    return 1;
 }
 
 1;

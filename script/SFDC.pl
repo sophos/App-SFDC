@@ -29,15 +29,15 @@ sub usage {"
 # GetOptions, which is why we shift instead of using $_[0]
 
 local $_ = shift;
-if (/retrieve/i) {
-    App::SFDC::Retrieve->new_with_options->execute();
-} elsif (/deploy/i) {
-    App::SFDC::Deploy->new_with_options->execute();
-} else {
-    print usage;
+exit not do {
+    if (/retrieve/i) {
+        App::SFDC::Retrieve->new_with_options->execute();
+    } elsif (/deploy/i) {
+        App::SFDC::Deploy->new_with_options->execute();
+    } else {
+        print usage;
+    }
 }
-
-1;
 
 __END__
 
