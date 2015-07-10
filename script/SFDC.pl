@@ -28,7 +28,7 @@ sub usage {"
 # expect @ARGV to start with an operation which would be invalid as input to
 # GetOptions, which is why we shift instead of using $_[0]
 
-local $_ = shift;
+local $_ = shift || '';
 exit not do {
     if (/retrieve/i) {
         App::SFDC::Retrieve->new_with_options->execute();
