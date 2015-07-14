@@ -106,6 +106,18 @@ option 'runtests',
     is => 'ro',
     default => 0;
 
+=option --testoutput -o
+
+If set, then this file will be populated with JUnit-formatted xml containing
+the test results of this deployment.
+
+=cut
+
+option 'testoutput',
+    format => 's',
+    short => 'o',
+    is => 'ro';
+
 =option --validate -v
 
 If set, set 'isCheckOnly' to true, i.e. perform a validation deployment.
@@ -161,6 +173,16 @@ has '_result',
         );
     };
 
+sub _JUnitOutput {
+    my $self = shift;
+    return unless $self->testoutput;
+    Role::Tiny->apply_roles_to_object(
+        $self->_result,
+        'App::SFDC::Role::DeployResult::JUnitOutput'
+    );
+    $self->_result->printToJUnit($self->testoutput);
+}
+
 =method execute()
 
 builds a zip file and deploys it to Salesforce.com.
@@ -174,6 +196,7 @@ sub execute {
         return;
     }
     print $self->_result;
+    $self->_JUnitOutput;
     return $self->_result->success;
 }
 
