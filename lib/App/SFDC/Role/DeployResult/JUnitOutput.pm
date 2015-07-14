@@ -31,6 +31,8 @@ sub _printTestSuccesses {
 
 sub _printTestFailures {
     my ($self, $FH) = @_;
+    return
+        unless $self->result->{runTestsEnabled} eq 'true';
     print $FH $_ for map {"
             <testcase
                 name='$$_{methodName}'
@@ -53,7 +55,6 @@ Accepts a filename and prints JUnit-formatted test results to that file.
 
 sub printToJUnit {
   my ($self, $fileName) = @_;
-  return if $self->result->{runTestsEnabled} eq 'false';
   INFO "Writing test results to $fileName";
   open my $FH, '>', $fileName
     or ERROR "Couldn't open $fileName for writing: $!";
