@@ -194,7 +194,7 @@ sub execute {
     my $self = shift;
     unless (scalar @{$self->files}) {
         INFO "Nothing to deploy; exiting";
-        return;
+        return 1; # truthy
     }
     print $self->_result;
     $self->_JUnitOutput;
