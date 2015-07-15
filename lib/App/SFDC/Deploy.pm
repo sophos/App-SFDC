@@ -78,6 +78,7 @@ option 'files',
             INFO 'Reading files from STDIN';
             @filelist = <STDIN>;
             chomp @filelist;
+            @filelist = grep {$_} @filelist;
         }
         DEBUG "File list for deployment: ". Dumper(\@filelist);
         return \@filelist;
