@@ -16,11 +16,12 @@ sub _printTestSuccesses {
         unless $self->result->{runTestsEnabled} eq 'true'
         and $self->complete
         and exists $self->result->{details}->{runTestResult}->{successes};
-    print $FH $_ for map {"
-            <testcase
+    print $FH $_ for map {
+        my $time = $$_{time}/1000;
+        "   <testcase
                 name='$$_{methodName}'
                 classname='$$_{name}'
-                time='$$_{time}'>
+                time='$time'>
             </testcase>
         "} (
             ref $self->result->{details}->{runTestResult}->{successes} eq 'ARRAY'
@@ -33,11 +34,12 @@ sub _printTestFailures {
     my ($self, $FH) = @_;
     return
         unless $self->result->{runTestsEnabled} eq 'true';
-    print $FH $_ for map {"
-            <testcase
+    print $FH $_ for map {
+        my $time = $$_{time}/1000;
+        "   <testcase
                 name='$$_{methodName}'
                 classname='$$_{name}'
-                time='$$_{time}'>
+                time='$time'>
                 <failure>
                     <![CDATA[$$_{stackTrace}\n$$_{message}]]>
                 </failure>
