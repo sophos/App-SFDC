@@ -130,21 +130,42 @@ option 'validate',
     short => 'v',
     default => 0;
 
+=option --zipfile -z
+
+If set, deploy this zip file, rather than building one from scratch.
+
+=cut
+
+option 'zipfile',
+    is => 'ro',
+    short => 'z',
+    isa => sub {
+        LOGDIE "The specified zipfile, $_[0], doesn't exist!" unless -e $_[0];
+    };
+
 has '_zipFile',
     lazy => 1,
     is => 'rw',
     default => sub {
         my $self = shift;
-        WWW::SFDC::Zip::makezip(
-            'src/',
-            $self->_manifest->getFileList,
-            'package.xml',
-            (
-                $self->deletions
-                  ? ('destructiveChangesPre.xml', 'destructiveChangesPost.xml')
-                  : ()
-            )
-        );
+
+        return $self->zipfile
+            ? do {
+                open my $FH, '<', $self->zipfile;
+                binmode $FH;
+                local $/;
+                <$FH>;
+            }
+            : WWW::SFDC::Zip::makezip(
+                'src/',
+                $self->_manifest->getFileList,
+                'package.xml',
+                (
+                    $self->deletions
+                      ? ('destructiveChangesPre.xml', 'destructiveChangesPost.xml')
+                      : ()
+                )
+            );
     };
 
 has '_manifest',
@@ -192,7 +213,7 @@ builds a zip file and deploys it to Salesforce.com.
 
 sub execute {
     my $self = shift;
-    unless (scalar @{$self->files}) {
+    unless (scalar @{$self->files} or $self->zipfile) {
         INFO "Nothing to deploy; exiting";
         return 1; # truthy
     }
