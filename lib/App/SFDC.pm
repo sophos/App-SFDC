@@ -10,7 +10,7 @@ sub import {
   my $class = shift;
 
   require "App/SFDC/$_.pm" ## no critic
-    for @_ || qw'Retrieve Deploy'
+    for @_ || qw'Deploy ExecuteAnonymous Retrieve'
 
 }
 

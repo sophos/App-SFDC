@@ -29,11 +29,13 @@ sub usage {"
 # GetOptions, which is why we shift instead of using $_[0]
 
 local $_ = shift || '';
-exit not do {
+die unless do {
     if (/retrieve/i) {
         App::SFDC::Retrieve->new_with_options->execute();
     } elsif (/deploy/i) {
         App::SFDC::Deploy->new_with_options->execute();
+    } elsif (/executeAnonymous/i) {
+        App::SFDC::ExecuteAnonymous->new_with_options->execute();
     } else {
         print usage;
     }
