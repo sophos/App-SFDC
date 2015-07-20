@@ -11,7 +11,7 @@ use Config::Properties;
 use Data::Dumper;
 use File::HomeDir;
 use Log::Log4perl ':easy';
-use WWW::SFDC;
+use WWW::SFDC '0.33';
 
 use Moo::Role;
 use MooX::Options;
