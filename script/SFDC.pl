@@ -10,32 +10,32 @@ use 5.10.0;
 
 use App::SFDC;
 
+sub usage {
 
-sub usage {"
-    SFDC: Tools for interacting with Salesforce.com
-
-    Valid commands:
-
-        retrieve - Retrieve metadata from SFDC
-
-        deploy   - Deploy metadata to SFDC
-
-    For more detail, run: SFDC <command> --usage
-"}
+    join "\n",
+        "SFDC: Tools for interacting with Salesforce.com",
+    @App::SFDC::commands
+    ? (
+        "Installed commands:",
+        map {"\t$_"} @App::SFDC::commands,
+        "\nFor more detail, run: SFDC <command> --usage"
+    )
+    : (
+        "SFDC: Tools for interacting with Salesforce.com",
+        "It doesn't look like you have any modules installed!",
+        "Try searching CPAN for App::SFDC::Command"
+    )
+}
 
 # The use of shift HAS SIDE EFFECTS. Note that child modules are invoked using
 # Getopt::Long, which operates on @ARGV; when this program is invoked, we
 # expect @ARGV to start with an operation which would be invalid as input to
 # GetOptions, which is why we shift instead of using $_[0]
 
-local $_ = shift || '';
+my $command = shift;
 exit 1 unless do {
-    if (/retrieve/i) {
-        App::SFDC::Retrieve->new_with_options->execute();
-    } elsif (/deploy/i) {
-        App::SFDC::Deploy->new_with_options->execute();
-    } elsif (/executeAnonymous/i) {
-        App::SFDC::ExecuteAnonymous->new_with_options->execute();
+    if ($command && grep {/$command/} @App::SFDC::commands) {
+        "App::SFDC::Command::$command"->new_with_options->execute();
     } else {
         print usage;
     }
@@ -45,9 +45,12 @@ __END__
 
 =head1 DESCRIPTION
 
-This package provides a wrapper around certain common interactions with Salesforce,
-with the aim of being sufficiently powerful and flexible for the enterprise, and to
-make 10k+ line ant XML packages unneccesary.
+This package provides a wrapper around certain common interactions with
+Salesforce, with the aim of being sufficiently powerful and flexible for the enterprise, and to make 10k+ line ant XML packages unneccesary.
+
+=head1 DEFAULT MODULES
+
+By default, this application ships with
 
 =head1 SHARED FUNCTIONALITY
 
