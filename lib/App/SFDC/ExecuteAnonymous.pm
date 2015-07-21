@@ -50,6 +50,14 @@ has '_result',
         )
     };
 
+=method execute()
+
+Executes the anonymous code against the target sandbox, printing the debug log
+to STDOUT and returning truth or falsehood depending on whether the code
+executed successfully.
+
+=cut
+
 sub execute {
     my $self = shift;
 
