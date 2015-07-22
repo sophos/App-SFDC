@@ -34,8 +34,8 @@ sub usage {
 
 my $command = shift;
 exit 1 unless do {
-    if ($command && grep {/$command/} @App::SFDC::commands) {
-        "App::SFDC::Command::$command"->new_with_options->execute();
+    if ($command and my ($correct_command) = grep {/^$command$/i} @App::SFDC::commands) {
+        "App::SFDC::Command::$correct_command"->new_with_options->execute();
     } else {
         print usage;
     }
