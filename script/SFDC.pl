@@ -21,7 +21,6 @@ sub usage {
         "\nFor more detail, run: SFDC <command> --usage"
     )
     : (
-        "SFDC: Tools for interacting with Salesforce.com",
         "It doesn't look like you have any modules installed!",
         "Try searching CPAN for App::SFDC::Command"
     )
