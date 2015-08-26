@@ -1,5 +1,4 @@
 package App::SFDC::Deploy;
-# ABSTRACT: Deploy files to SFDC
 
 use strict;
 use warnings;
@@ -16,14 +15,37 @@ use MooX::Options;
 with 'App::SFDC::Role::Logging',
 	'App::SFDC::Role::Credentials';
 
+=option --all -a
+
+If set, Deploy will read every file from src/ and attempt to deploy them,
+rather than reading from STDIN.
+
+=cut
+
 option 'all',
 	is => 'ro',
 	short => 'a';
+
+=option --deletions --no-deletions
+
+If set, Deploy will add src/destructiveChanges.xml,
+src/destructiveChangesPre.xml, and src/destructChangesPost.xml to the package
+if they exist. Set by default.
+
+=cut
 
 option 'deletions',
 	is => 'ro',
 	default => 1,
 	negativable => 1;
+
+=option --files -f
+
+Specific files for deployment: can be specified multiple times. If this is
+set, it overrides --all; if neither this nor --all is set, Deploy reads from
+STDIN.
+
+=cut
 
 option 'files',
 	format => 's',
@@ -50,20 +72,45 @@ option 'files',
 		return \@filelist;
 	};
 
+=option --rollback --no-rollback
+
+If set, sends the 'rollbackOnError' header to Salesforce so that if any
+component fails to deploy, the deployment as a whole fails. Set by default.
+
+=cut
+
 option 'rollback',
 	is => 'ro',
 	default => 0,
 	negativable => 1;
+
+=option --runtests -t
+
+If set, sets the 'testLevel' header to 'runLocalTests'. Unset by defailt.
+
+=cut
 
 option 'runtests',
 	short => 't',
 	is => 'ro',
 	default => 0;
 
+=option --validate -v
+
+If set, perform a dry-run deployment.
+
+=cut
+
 option 'validate',
 	is => 'ro',
 	short => 'v',
 	default => 0;
+
+=attr zipFile
+
+
+
+=cut
 
 has 'zipFile',
 	lazy => 1,
@@ -71,7 +118,6 @@ has 'zipFile',
 	default => sub {
 		my $self = shift;
 
-	print Dumper @{$self->files};
 		WWW::SFDC::Zip::makezip(
 			'src/',
 			@{$self->files},

@@ -1,5 +1,4 @@
 package App::SFDC::Role::Credentials;
-# ABSTRACT: Handle credential command-line input
 
 use strict;
 use warnings;
@@ -36,12 +35,12 @@ option 'apiversion',
 	default => 33;
 
 option 'credfile',
-	doc => 'The file from which to read credentials.',
 	is => 'ro',
 	format => 's',
 	lazy => 1,
 	default => File::HomeDir->my_home."/.salesforce.properties",
 	isa => sub {
+		INFO "hi!";
 		LOGDIE "The credentials file ".$_[0]." doesn't exist!"
 			unless -e $_[0];
 	};
